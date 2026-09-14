@@ -51,8 +51,8 @@ function SearchScreen() {
       needs,
       mode,
       maxMinutes,
-      language: spanish ? "Spanish" : undefined,
       noIdOnly,
+      ...(spanish ? { language: "Spanish" } : {}),
     });
     navigate({ to: "/map" });
   };

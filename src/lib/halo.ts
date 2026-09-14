@@ -459,7 +459,7 @@ export function openStatus(r: Resource, now: Date): OpenStatus {
     const d = (now.getDay() + i) % 7;
     const hrs = r.hours[d];
     if (hrs) {
-      const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d];
+      const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d] ?? "";
       return { open: false, label: `Opens ${day} ${fmt(hrs.open)}`, closingSoon: false };
     }
   }
@@ -596,8 +596,8 @@ export function buildRoute(
   return { legs, totalMinutes: totalTravel + totalVisit };
 }
 
-export function categoryMeta(c: NeedCategory) {
-  return NEEDS.find((n) => n.id === c) ?? NEEDS[5];
+export function categoryMeta(c: NeedCategory): { id: NeedCategory; label: string; icon: string } {
+  return NEEDS.find((n) => n.id === c) ?? { id: "other", label: "Other", icon: "➕" };
 }
 
 export function formatMinutes(total: number) {
