@@ -49,8 +49,8 @@ export interface Resource {
 
 const h = (open: string, close: string): Hours => {
   const m = (s: string) => {
-    const [a, b] = s.split(":").map(Number);
-    return a * 60 + b;
+    const parts = s.split(":").map(Number);
+    return (parts[0] ?? 0) * 60 + (parts[1] ?? 0);
   };
   return { open: m(open), close: m(close) };
 };
@@ -585,7 +585,8 @@ export function buildRoute(
         bi = i;
       }
     });
-    const [next] = remaining.splice(bi, 1);
+    const next = remaining.splice(bi, 1)[0];
+    if (!next) break;
     const minutes = travelMinutes(bd, mode);
     legs.push({ resource: next, minutes, miles: bd, travel: travelLabel(minutes, mode, next) });
     cur = { lat: next.lat, lng: next.lng };

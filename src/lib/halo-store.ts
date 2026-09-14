@@ -71,7 +71,10 @@ export function usePlan() {
       const j = i + dir;
       if (i < 0 || j < 0 || j >= plan.length) return;
       const next = [...plan];
-      [next[i], next[j]] = [next[j], next[i]];
+      const a = next[i]!;
+      const b = next[j]!;
+      next[i] = b;
+      next[j] = a;
       persist(next);
     },
     [plan, persist],
