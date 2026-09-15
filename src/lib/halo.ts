@@ -510,8 +510,12 @@ export interface Match {
   travel: string;
 }
 
-export function scoreResources(c: SearchCriteria, now: Date): Match[] {
-  const pool = RESOURCES.filter((r) => c.needs.length === 0 || c.needs.includes(r.category));
+export function scoreResources(
+  c: SearchCriteria,
+  now: Date,
+  directory: Resource[] = RESOURCES,
+): Match[] {
+  const pool = directory.filter((r) => c.needs.length === 0 || c.needs.includes(r.category));
   return pool
     .map((r) => {
       const miles = distanceMiles(c.location, r);
