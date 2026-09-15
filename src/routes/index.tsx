@@ -228,14 +228,16 @@ function SearchScreen() {
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground transition-transform hover:brightness-110 active:scale-[0.99]"
+          disabled={busy}
+          className="w-full rounded-xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground transition-transform hover:brightness-110 active:scale-[0.99] disabled:opacity-70"
         >
-          Find resources
+          {busy ? "Looking up the address…" : "Find resources"}
         </button>
       </form>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Demo directory for Norwalk, CA. Always confirm hours by phone before sending a patient.
+        Listings come from live Google Maps data. Always confirm hours by phone before sending a
+        patient.
       </p>
     </main>
   );
