@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { NeedCategory, PatientLocation, TravelMode } from "./halo";
+import type { NeedCategory, PatientLocation, Resource, TravelMode } from "./halo";
 
 export interface StoredSearch {
   location: PatientLocation;
