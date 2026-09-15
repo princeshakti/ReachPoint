@@ -135,10 +135,77 @@ function MapScreen() {
         </div>
 
         <div className="space-y-3">
+          <section className="halo-card space-y-4 p-4">
+            <div>
+              <p className="text-sm font-semibold">Add or change what they need</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {NEEDS.map((n) => (
+                  <button
+                    key={n.id}
+                    type="button"
+                    onClick={() => {
+                      const has = search.needs.includes(n.id);
+                      const next = has
+                        ? search.needs.filter((x) => x !== n.id)
+                        : [...search.needs, n.id];
+                      update({ needs: next.length ? next : [n.id] });
+                    }}
+                    className={`halo-chip ${search.needs.includes(n.id) ? "halo-chip-on" : ""}`}
+                  >
+                    <span aria-hidden>{n.icon}</span>
+                    {n.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm font-semibold">How they travel</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {TRAVEL_MODES.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => update({ mode: m.id as TravelMode })}
+                      className={`halo-chip ${search.mode === m.id ? "halo-chip-on" : ""}`}
+                    >
+                      <span aria-hidden>{m.icon}</span>
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Travel limit</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {TIME_OPTIONS.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => update({ maxMinutes: t })}
+                      className={`halo-chip ${search.maxMinutes === t ? "halo-chip-on" : ""}`}
+                    >
+                      {t} min
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
           <div className="flex items-baseline justify-between">
-            <h1 className="text-2xl font-semibold">{within.length} matches within reach</h1>
+            <h1 className="text-2xl font-semibold">
+              {live.isPending ? "Finding resources…" : `${within.length} matches within reach`}
+            </h1>
             <span className="text-sm text-muted-foreground">ranked by Halo Match</span>
           </div>
+
+          {live.isError && (
+            <p className="halo-card p-4 text-sm text-destructive">
+              We couldn't load nearby resources just now. Please try again in a moment.
+            </p>
+          )}
+
 
           {within.map((m) => (
             <ResultCard
