@@ -321,7 +321,20 @@ function ResultCard({
           <div className="space-y-1 text-sm text-muted-foreground">
             <p>📍 {r.address}</p>
             <p>☎ {r.phone}</p>
-            <p>🕒 {hoursSummary(r)}</p>
+            <p>🕒 {hoursSummary(r) || "Hours not published — call to confirm"}</p>
+            {r.website && (
+              <p>
+                🔗{" "}
+                <a
+                  href={r.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  Website
+                </a>
+              </p>
+            )}
             <p className="text-xs">Last verified {r.lastVerified}</p>
           </div>
         </div>
