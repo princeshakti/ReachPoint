@@ -1,15 +1,24 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { HaloMap } from "@/components/HaloMap";
 import {
+  NEEDS,
   RESOURCES,
+  TRAVEL_MODES,
   categoryMeta,
   hoursSummary,
   reachableMiles,
   scoreResources,
   type Match,
+  type NeedCategory,
+  type TravelMode,
 } from "@/lib/halo";
-import { usePlan, useSearch } from "@/lib/halo-store";
+import { findResources } from "@/lib/halo-live.functions";
+import { saveResources, usePlan, useSearch } from "@/lib/halo-store";
+
+const TIME_OPTIONS = [15, 30, 45];
 
 export const Route = createFileRoute("/map")({
   head: () => ({
@@ -33,20 +42,43 @@ export const Route = createFileRoute("/map")({
 });
 
 function MapScreen() {
-  const { search, ready } = useSearch();
+  const { search, ready, update } = useSearch();
   const { plan, toggle } = usePlan();
   const navigate = useNavigate();
   const [now, setNow] = useState<Date | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const find = useServerFn(findResources);
 
   useEffect(() => setNow(new Date()), []);
   useEffect(() => {
     if (ready && !search) navigate({ to: "/" });
   }, [ready, search, navigate]);
 
+  const needsKey = search ? [...search.needs].sort().join(",") : "";
+  const live = useQuery({
+    enabled: Boolean(search),
+    queryKey: ["halo-resources", search?.location.lat, search?.location.lng, needsKey],
+    staleTime: 5 * 60 * 1000,
+    queryFn: () =>
+      find({
+        data: {
+          lat: search!.location.lat,
+          lng: search!.location.lng,
+          needs: search!.needs.length ? search!.needs : (["food"] as NeedCategory[]),
+          radiusMiles: 10,
+        },
+      }),
+  });
+
+  const resources = useMemo(() => live.data ?? [], [live.data]);
+
+  useEffect(() => {
+    if (live.data) saveResources(live.data);
+  }, [live.data]);
+
   const matches = useMemo<Match[]>(
-    () => (search && now ? scoreResources(search, now) : []),
-    [search, now],
+    () => (search && now ? scoreResources(search, now, resources) : []),
+    [search, now, resources],
   );
 
   if (!search || !now) {
@@ -103,10 +135,77 @@ function MapScreen() {
         </div>
 
         <div className="space-y-3">
+          <section className="halo-card space-y-4 p-4">
+            <div>
+              <p className="text-sm font-semibold">Add or change what they need</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {NEEDS.map((n) => (
+                  <button
+                    key={n.id}
+                    type="button"
+                    onClick={() => {
+                      const has = search.needs.includes(n.id);
+                      const next = has
+                        ? search.needs.filter((x) => x !== n.id)
+                        : [...search.needs, n.id];
+                      update({ needs: next.length ? next : [n.id] });
+                    }}
+                    className={`halo-chip ${search.needs.includes(n.id) ? "halo-chip-on" : ""}`}
+                  >
+                    <span aria-hidden>{n.icon}</span>
+                    {n.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-sm font-semibold">How they travel</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {TRAVEL_MODES.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => update({ mode: m.id as TravelMode })}
+                      className={`halo-chip ${search.mode === m.id ? "halo-chip-on" : ""}`}
+                    >
+                      <span aria-hidden>{m.icon}</span>
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Travel limit</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {TIME_OPTIONS.map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => update({ maxMinutes: t })}
+                      className={`halo-chip ${search.maxMinutes === t ? "halo-chip-on" : ""}`}
+                    >
+                      {t} min
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
           <div className="flex items-baseline justify-between">
-            <h1 className="text-2xl font-semibold">{within.length} matches within reach</h1>
+            <h1 className="text-2xl font-semibold">
+              {live.isPending ? "Finding resources…" : `${within.length} matches within reach`}
+            </h1>
             <span className="text-sm text-muted-foreground">ranked by Halo Match</span>
           </div>
+
+          {live.isError && (
+            <p className="halo-card p-4 text-sm text-destructive">
+              We couldn't load nearby resources just now. Please try again in a moment.
+            </p>
+          )}
+
 
           {within.map((m) => (
             <ResultCard
@@ -139,9 +238,9 @@ function MapScreen() {
             </details>
           )}
 
-          {matches.length === 0 && (
+          {!live.isPending && matches.length === 0 && (
             <p className="halo-card p-6 text-sm text-muted-foreground">
-              No resources match those needs. Try selecting more categories.
+              No resources found nearby for those needs. Try selecting more categories.
             </p>
           )}
         </div>
@@ -222,7 +321,20 @@ function ResultCard({
           <div className="space-y-1 text-sm text-muted-foreground">
             <p>📍 {r.address}</p>
             <p>☎ {r.phone}</p>
-            <p>🕒 {hoursSummary(r)}</p>
+            <p>🕒 {hoursSummary(r) || "Hours not published — call to confirm"}</p>
+            {r.website && (
+              <p>
+                🔗{" "}
+                <a
+                  href={r.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  Website
+                </a>
+              </p>
+            )}
             <p className="text-xs">Last verified {r.lastVerified}</p>
           </div>
         </div>

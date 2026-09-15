@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { NEEDS, TRAVEL_MODES, geocode, type NeedCategory, type TravelMode } from "@/lib/halo";
-import { saveSearch } from "@/lib/halo-store";
+import { NEEDS, TRAVEL_MODES, type NeedCategory, type TravelMode } from "@/lib/halo";
+import { geocodeAddress, reverseGeocode } from "@/lib/halo-live.functions";
+import { saveResources, saveSearch } from "@/lib/halo-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -36,25 +38,73 @@ function SearchScreen() {
   const [noIdOnly, setNoIdOnly] = useState(false);
   const [spanish, setSpanish] = useState(false);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const geocodeFn = useServerFn(geocodeAddress);
+  const reverseFn = useServerFn(reverseGeocode);
 
   const toggleNeed = (id: NeedCategory) =>
     setNeeds((n) => (n.includes(id) ? n.filter((x) => x !== id) : [...n, id]));
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!address.trim()) {
-      setError("Enter the patient's address or cross streets.");
-      return;
-    }
+  const start = (location: { address: string; lat: number; lng: number }) => {
+    saveResources([]);
     saveSearch({
-      location: geocode(address),
-      needs,
+      location,
+      needs: needs.length ? needs : ["food"],
       mode,
       maxMinutes,
       noIdOnly,
       ...(spanish ? { language: "Spanish" } : {}),
     });
     navigate({ to: "/map" });
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!address.trim()) {
+      setError("Enter the patient's address or cross streets.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    try {
+      const location = await geocodeFn({ data: { address: address.trim() } });
+      start(location);
+    } catch (err) {
+      setError(
+        err instanceof Error && err.message.includes("couldn't find")
+          ? "We couldn't find that address. Try adding the city or ZIP code."
+          : "Address lookup didn't work just now. Please try again.",
+      );
+      setBusy(false);
+    }
+  };
+
+  const useCurrentLocation = () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setError("This browser can't share a location. Type the address instead.");
+      return;
+    }
+    setBusy(true);
+    setError("");
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const location = await reverseFn({
+            data: { lat: pos.coords.latitude, lng: pos.coords.longitude },
+          });
+          setAddress(location.address);
+          start(location);
+        } catch {
+          setError("We couldn't read that location. Type the address instead.");
+          setBusy(false);
+        }
+      },
+      () => {
+        setError("Location access was blocked. Type the address instead.");
+        setBusy(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
   };
 
   return (
@@ -92,8 +142,16 @@ function SearchScreen() {
             className="mt-2 w-full rounded-xl border border-input bg-background px-4 py-3 text-base outline-none focus:border-ring focus:ring-2 focus:ring-ring/25"
           />
           {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+          <button
+            type="button"
+            onClick={useCurrentLocation}
+            disabled={busy}
+            className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-60"
+          >
+            📍 Use my current location
+          </button>
           <p className="mt-2 text-xs text-muted-foreground">
-            Cross streets are fine. Nothing is saved to a patient record.
+            Real addresses anywhere in the US. Nothing is saved to a patient record.
           </p>
         </section>
 
@@ -170,14 +228,16 @@ function SearchScreen() {
 
         <button
           type="submit"
-          className="w-full rounded-xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground transition-transform hover:brightness-110 active:scale-[0.99]"
+          disabled={busy}
+          className="w-full rounded-xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground transition-transform hover:brightness-110 active:scale-[0.99] disabled:opacity-70"
         >
-          Find resources
+          {busy ? "Looking up the address…" : "Find resources"}
         </button>
       </form>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        Demo directory for Norwalk, CA. Always confirm hours by phone before sending a patient.
+        Listings come from live Google Maps data. Always confirm hours by phone before sending a
+        patient.
       </p>
     </main>
   );

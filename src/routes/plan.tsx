@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   RESOURCES,
+  TRAVEL_MODES,
   buildRoute,
   categoryMeta,
   formatMinutes,
@@ -10,8 +11,9 @@ import {
   travelMinutes,
   distanceMiles,
   type Resource,
+  type TravelMode,
 } from "@/lib/halo";
-import { usePlan, useSearch } from "@/lib/halo-store";
+import { usePlan, useResources, useSearch } from "@/lib/halo-store";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({
@@ -36,7 +38,8 @@ export const Route = createFileRoute("/plan")({
 
 function PlanScreen() {
   const { plan, remove, move, clear, ready } = usePlan();
-  const { search, ready: searchReady } = useSearch();
+  const { search, ready: searchReady, update } = useSearch();
+  const { resources: liveResources } = useResources();
   const navigate = useNavigate();
   const [now, setNow] = useState<Date | null>(null);
   const [showRoute, setShowRoute] = useState(false);
@@ -46,10 +49,10 @@ function PlanScreen() {
     if (searchReady && !search) navigate({ to: "/" });
   }, [searchReady, search, navigate]);
 
-  const resources = useMemo(
-    () => plan.map((id) => RESOURCES.find((r) => r.id === id)).filter(Boolean) as Resource[],
-    [plan],
-  );
+  const resources = useMemo(() => {
+    const pool = [...liveResources, ...RESOURCES];
+    return plan.map((id) => pool.find((r) => r.id === id)).filter(Boolean) as Resource[];
+  }, [plan, liveResources]);
 
   if (!search || !now || !ready) {
     return <main className="grid min-h-screen place-items-center text-muted-foreground">Loading…</main>;
