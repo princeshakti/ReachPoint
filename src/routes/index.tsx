@@ -1,7 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { NEEDS, TRAVEL_MODES, geocode, type NeedCategory, type TravelMode } from "@/lib/halo";
-import { saveSearch } from "@/lib/halo-store";
+import { NEEDS, TRAVEL_MODES, type NeedCategory, type TravelMode } from "@/lib/halo";
+import { geocodeAddress, reverseGeocode } from "@/lib/halo-live.functions";
+import { saveResources, saveSearch } from "@/lib/halo-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
