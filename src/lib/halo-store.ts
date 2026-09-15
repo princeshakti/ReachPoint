@@ -12,6 +12,7 @@ export interface StoredSearch {
 
 const SEARCH_KEY = "halo.search";
 const PLAN_KEY = "halo.plan";
+const RESOURCES_KEY = "halo.resources";
 
 function read<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
