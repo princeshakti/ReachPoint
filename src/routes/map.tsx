@@ -238,9 +238,9 @@ function MapScreen() {
             </details>
           )}
 
-          {matches.length === 0 && (
+          {!live.isPending && matches.length === 0 && (
             <p className="halo-card p-6 text-sm text-muted-foreground">
-              No resources match those needs. Try selecting more categories.
+              No resources found nearby for those needs. Try selecting more categories.
             </p>
           )}
         </div>
