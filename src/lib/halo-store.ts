@@ -34,6 +34,28 @@ export function saveSearch(s: StoredSearch) {
   write(SEARCH_KEY, s);
 }
 
+/** Resources fetched live from Google Maps for the current search. */
+export function saveResources(list: Resource[]) {
+  write(RESOURCES_KEY, list);
+}
+
+export function readResources(): Resource[] {
+  return read<Resource[]>(RESOURCES_KEY) ?? [];
+}
+
+export function useResources() {
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const sync = () => setResources(readResources());
+    sync();
+    setReady(true);
+    window.addEventListener("halo:store", sync);
+    return () => window.removeEventListener("halo:store", sync);
+  }, []);
+  return { resources, ready };
+}
+
 export function useSearch() {
   const [search, setSearch] = useState<StoredSearch | null>(null);
   const [ready, setReady] = useState(false);
@@ -41,7 +63,20 @@ export function useSearch() {
     setSearch(read<StoredSearch>(SEARCH_KEY));
     setReady(true);
   }, []);
-  return { search, ready, setSearch: (s: StoredSearch) => (saveSearch(s), setSearch(s)) };
+  const update = useCallback((patch: Partial<StoredSearch>) => {
+    setSearch((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...patch };
+      saveSearch(next);
+      return next;
+    });
+  }, []);
+  return {
+    search,
+    ready,
+    setSearch: (s: StoredSearch) => (saveSearch(s), setSearch(s)),
+    update,
+  };
 }
 
 export function usePlan() {
