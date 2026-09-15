@@ -38,7 +38,8 @@ export const Route = createFileRoute("/plan")({
 
 function PlanScreen() {
   const { plan, remove, move, clear, ready } = usePlan();
-  const { search, ready: searchReady } = useSearch();
+  const { search, ready: searchReady, update } = useSearch();
+  const { resources: liveResources } = useResources();
   const navigate = useNavigate();
   const [now, setNow] = useState<Date | null>(null);
   const [showRoute, setShowRoute] = useState(false);
