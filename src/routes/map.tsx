@@ -42,20 +42,43 @@ export const Route = createFileRoute("/map")({
 });
 
 function MapScreen() {
-  const { search, ready } = useSearch();
+  const { search, ready, update } = useSearch();
   const { plan, toggle } = usePlan();
   const navigate = useNavigate();
   const [now, setNow] = useState<Date | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const find = useServerFn(findResources);
 
   useEffect(() => setNow(new Date()), []);
   useEffect(() => {
     if (ready && !search) navigate({ to: "/" });
   }, [ready, search, navigate]);
 
+  const needsKey = search ? [...search.needs].sort().join(",") : "";
+  const live = useQuery({
+    enabled: Boolean(search),
+    queryKey: ["halo-resources", search?.location.lat, search?.location.lng, needsKey],
+    staleTime: 5 * 60 * 1000,
+    queryFn: () =>
+      find({
+        data: {
+          lat: search!.location.lat,
+          lng: search!.location.lng,
+          needs: search!.needs.length ? search!.needs : (["food"] as NeedCategory[]),
+          radiusMiles: 10,
+        },
+      }),
+  });
+
+  const resources = useMemo(() => live.data ?? [], [live.data]);
+
+  useEffect(() => {
+    if (live.data) saveResources(live.data);
+  }, [live.data]);
+
   const matches = useMemo<Match[]>(
-    () => (search && now ? scoreResources(search, now) : []),
-    [search, now],
+    () => (search && now ? scoreResources(search, now, resources) : []),
+    [search, now, resources],
   );
 
   if (!search || !now) {
