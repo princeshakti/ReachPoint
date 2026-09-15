@@ -45,6 +45,9 @@ export interface Resource {
   bring: string[];
   transitLine?: string;
   lastVerified: string;
+  /** Live listings from Google Maps: walk-in / ID / fee policies are not published. */
+  unknownPolicies?: boolean;
+  website?: string;
 }
 
 const h = (open: string, close: string): Hours => {
