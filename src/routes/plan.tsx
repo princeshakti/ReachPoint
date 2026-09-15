@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   RESOURCES,
+  TRAVEL_MODES,
   buildRoute,
   categoryMeta,
   formatMinutes,
@@ -10,8 +11,9 @@ import {
   travelMinutes,
   distanceMiles,
   type Resource,
+  type TravelMode,
 } from "@/lib/halo";
-import { usePlan, useSearch } from "@/lib/halo-store";
+import { usePlan, useResources, useSearch } from "@/lib/halo-store";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({
