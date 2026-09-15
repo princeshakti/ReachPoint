@@ -1,15 +1,24 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { HaloMap } from "@/components/HaloMap";
 import {
+  NEEDS,
   RESOURCES,
+  TRAVEL_MODES,
   categoryMeta,
   hoursSummary,
   reachableMiles,
   scoreResources,
   type Match,
+  type NeedCategory,
+  type TravelMode,
 } from "@/lib/halo";
-import { usePlan, useSearch } from "@/lib/halo-store";
+import { findResources } from "@/lib/halo-live.functions";
+import { saveResources, usePlan, useSearch } from "@/lib/halo-store";
+
+const TIME_OPTIONS = [15, 30, 45];
 
 export const Route = createFileRoute("/map")({
   head: () => ({
