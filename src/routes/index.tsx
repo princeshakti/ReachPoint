@@ -142,8 +142,16 @@ function SearchScreen() {
             className="mt-2 w-full rounded-xl border border-input bg-background px-4 py-3 text-base outline-none focus:border-ring focus:ring-2 focus:ring-ring/25"
           />
           {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+          <button
+            type="button"
+            onClick={useCurrentLocation}
+            disabled={busy}
+            className="mt-3 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-60"
+          >
+            📍 Use my current location
+          </button>
           <p className="mt-2 text-xs text-muted-foreground">
-            Cross streets are fine. Nothing is saved to a patient record.
+            Real addresses anywhere in the US. Nothing is saved to a patient record.
           </p>
         </section>
 
