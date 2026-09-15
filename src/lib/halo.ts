@@ -528,29 +528,43 @@ export function scoreResources(
       if (minutes > c.maxMinutes) score -= 30;
       if (status.open) score += 10;
       if (status.closingSoon) score -= 6;
-      if (r.walkIns) score += 6;
-      if (!r.idRequired) score += 4;
-      if (r.free) score += 3;
-      if (r.capacity === "accepting") score += 5;
-      if (r.capacity === "waitlist") score -= 10;
-      if (c.language && r.languages.includes(c.language)) score += 4;
-      if (c.noIdOnly && r.idRequired) score -= 25;
+      if (!r.unknownPolicies) {
+        if (r.walkIns) score += 6;
+        if (!r.idRequired) score += 4;
+        if (r.free) score += 3;
+        if (r.capacity === "accepting") score += 5;
+        if (r.capacity === "waitlist") score -= 10;
+        if (c.language && r.languages.includes(c.language)) score += 4;
+        if (c.noIdOnly && r.idRequired) score -= 25;
+      }
+
+      const policySignals: Signal[] = r.unknownPolicies
+        ? [
+            { ok: false, label: "Call to confirm walk-in policy and what to bring" },
+            {
+              ok: Boolean(r.phone && r.phone !== "Phone not listed"),
+              label: r.phone && r.phone !== "Phone not listed" ? "Phone listed" : "No phone listed",
+            },
+          ]
+        : [
+            { ok: r.walkIns, label: r.walkIns ? "Walk-ins accepted" : "Appointment needed" },
+            { ok: !r.idRequired, label: r.idRequired ? "ID required" : "No ID required" },
+            { ok: r.free, label: r.free ? "Free" : "Fees may apply" },
+            {
+              ok: r.capacity !== "waitlist",
+              label:
+                r.capacity === "accepting"
+                  ? "Currently accepting clients"
+                  : r.capacity === "limited"
+                    ? "Limited capacity today"
+                    : "Waitlist",
+            },
+            { ok: r.languages.length > 1, label: r.languages.join(", ") },
+          ];
 
       const signals: Signal[] = [
         { ok: status.open, label: status.label },
-        { ok: r.walkIns, label: r.walkIns ? "Walk-ins accepted" : "Appointment needed" },
-        { ok: !r.idRequired, label: r.idRequired ? "ID required" : "No ID required" },
-        { ok: r.free, label: r.free ? "Free" : "Fees may apply" },
-        {
-          ok: r.capacity !== "waitlist",
-          label:
-            r.capacity === "accepting"
-              ? "Currently accepting clients"
-              : r.capacity === "limited"
-                ? "Limited capacity today"
-                : "Waitlist",
-        },
-        { ok: r.languages.length > 1, label: r.languages.join(", ") },
+        ...policySignals,
         {
           ok: minutes <= c.maxMinutes,
           label:
