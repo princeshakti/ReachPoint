@@ -97,6 +97,26 @@ function PlanScreen() {
         ) : (
           <>
             <div className="no-print mb-6 space-y-3">
+              <div className="halo-card p-4">
+                <p className="text-sm font-semibold">How will the patient travel?</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {TRAVEL_MODES.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => update({ mode: m.id as TravelMode })}
+                      className={`halo-chip ${search.mode === m.id ? "halo-chip-on" : ""}`}
+                    >
+                      <span aria-hidden>{m.icon}</span>
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Travel times on the handout and the route update right away.
+                </p>
+              </div>
+
               {resources.map((r, i) => (
                 <div key={r.id} className="halo-card flex items-center gap-3 p-3">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-secondary text-sm font-bold">
