@@ -1,3 +1,5 @@
+/// <reference types="google.maps" />
+
 let promise: Promise<typeof google.maps> | null = null;
 
 const CALLBACK = "__reachpointMapsReady";
