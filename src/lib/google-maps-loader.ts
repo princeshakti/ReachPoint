@@ -33,3 +33,4 @@ export function loadGoogleMaps(): Promise<typeof google.maps> {
 
   return promise;
 }
+
