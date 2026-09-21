@@ -18,13 +18,13 @@ import { usePlan, useResources, useSearch } from "@/lib/halo-store";
 export const Route = createFileRoute("/plan")({
   head: () => ({
     meta: [
-      { title: "Patient Plan — Halo" },
+      { title: "Patient Plan — ReachPoint" },
       {
         name: "description",
         content:
           "Build, reorder and print a patient-friendly community resource handout with hours, what to bring, and a suggested route.",
       },
-      { property: "og:title", content: "Patient Plan — Halo" },
+      { property: "og:title", content: "Patient Plan — ReachPoint" },
       {
         property: "og:description",
         content: "A one-page handout a patient can actually take home and use.",
@@ -70,7 +70,7 @@ function PlanScreen() {
       <header className="no-print sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-3 px-5 py-3">
           <Link to="/" className="font-display text-lg font-semibold text-primary">
-            ◎ Halo
+            ◎ ReachPoint
           </Link>
           <div className="flex-1 text-sm text-muted-foreground">
             Selected resources — {resources.length}
@@ -160,7 +160,7 @@ function PlanScreen() {
                   onClick={() => setShowRoute((v) => !v)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
                 >
-                  {showRoute ? "Hide Halo Route" : "Create Halo Route"}
+                  {showRoute ? "Hide ReachPoint Route" : "Create ReachPoint Route"}
                 </button>
                 <a
                   href={`sms:?&body=${encodeURIComponent(smsBody(resources, search.location.address))}`}
