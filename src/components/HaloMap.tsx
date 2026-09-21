@@ -13,7 +13,7 @@ interface Props {
 
 const METERS_PER_MILE = 1609.34;
 
-function pinIcon(icon: string, active: boolean, selected: boolean): google.maps.Symbol | string {
+function pinIcon(icon: string, active: boolean, selected: boolean): string {
   const fill = active ? "#0f766e" : "#ffffff";
   const text = active ? "#ffffff" : "#0f172a";
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="52" viewBox="0 0 44 52">
