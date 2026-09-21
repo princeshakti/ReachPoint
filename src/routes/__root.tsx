@@ -77,13 +77,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Halo — Community Resources Within Reach" },
+      { title: "ReachPoint — Community Resources Within Reach" },
       {
         name: "description",
         content:
-          "Halo helps care teams find food, shelter, EBT and utility resources a patient can realistically reach.",
+          "ReachPoint helps care teams find food, shelter, EBT and utility resources a patient can realistically reach.",
       },
-      { property: "og:title", content: "Halo — Community Resources Within Reach" },
+      { property: "og:title", content: "ReachPoint — Community Resources Within Reach" },
       {
         property: "og:description",
         content: "Proximity plus feasibility: travel time, hours, walk-in policy and eligibility.",

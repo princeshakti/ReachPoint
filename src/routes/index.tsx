@@ -8,13 +8,13 @@ import { saveResources, saveSearch } from "@/lib/halo-store";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Halo — Reachable Community Resources for Patients" },
+      { title: "ReachPoint — Reachable Community Resources for Patients" },
       {
         name: "description",
         content:
-          "Halo helps care teams find food, shelter, EBT and utility help a patient can actually reach — ranked by travel time, hours and eligibility.",
+          "ReachPoint helps care teams find food, shelter, EBT and utility help a patient can actually reach — ranked by travel time, hours and eligibility.",
       },
-      { property: "og:title", content: "Halo — Reachable Community Resources for Patients" },
+      { property: "og:title", content: "ReachPoint — Reachable Community Resources for Patients" },
       {
         property: "og:description",
         content:
@@ -114,14 +114,14 @@ function SearchScreen() {
           <span className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-lg">
             ◎
           </span>
-          <span className="font-display text-xl font-semibold tracking-tight">Halo</span>
+          <span className="font-display text-xl font-semibold tracking-tight">ReachPoint</span>
         </div>
         <h1 className="mt-6 text-4xl leading-tight font-semibold sm:text-5xl">
           Find help the patient can{" "}
           <span className="text-primary italic">actually reach</span>.
         </h1>
         <p className="mt-3 max-w-xl text-muted-foreground">
-          Not a three-mile circle. Halo ranks food, shelter, EBT and utility resources by real
+          Not a three-mile circle. ReachPoint ranks food, shelter, EBT and utility resources by real
           travel time, today's hours, and whether they're walk-in friendly.
         </p>
       </header>

@@ -23,13 +23,13 @@ const TIME_OPTIONS = [15, 30, 45];
 export const Route = createFileRoute("/map")({
   head: () => ({
     meta: [
-      { title: "Halo Map — Resources Within Reach" },
+      { title: "ReachPoint Map — Resources Within Reach" },
       {
         name: "description",
         content:
-          "See the patient's real accessibility halo on a map, with Halo Match scores for every nearby food, housing and benefits resource.",
+          "See the patient's real reachable area on a map, with ReachPoint Match scores for every nearby food, housing and benefits resource.",
       },
-      { property: "og:title", content: "Halo Map — Resources Within Reach" },
+      { property: "og:title", content: "ReachPoint Map — Resources Within Reach" },
       {
         property: "og:description",
         content: "Pins ranked by travel time, open hours, walk-in policy and eligibility.",
@@ -99,7 +99,7 @@ function MapScreen() {
       <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-5 py-3">
           <Link to="/" className="font-display text-lg font-semibold text-primary">
-            ◎ Halo
+            ◎ ReachPoint
           </Link>
           <div className="min-w-0 flex-1 text-sm text-muted-foreground">
             <span className="truncate font-medium text-foreground">{search.location.address}</span>
@@ -197,7 +197,7 @@ function MapScreen() {
             <h1 className="text-2xl font-semibold">
               {live.isPending ? "Finding resources…" : `${within.length} matches within reach`}
             </h1>
-            <span className="text-sm text-muted-foreground">ranked by Halo Match</span>
+            <span className="text-sm text-muted-foreground">ranked by ReachPoint Match</span>
           </div>
 
           {live.isError && (
@@ -221,7 +221,7 @@ function MapScreen() {
           {beyond.length > 0 && (
             <details className="halo-card p-4">
               <summary className="cursor-pointer text-sm font-semibold">
-                {beyond.length} more just outside the halo
+                {beyond.length} more just outside the reachable area
               </summary>
               <div className="mt-3 space-y-3">
                 {beyond.map((m) => (
