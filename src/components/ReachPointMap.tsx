@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { categoryMeta, type Match, type PatientLocation } from "@/lib/halo";
+import { categoryMeta, type Match, type PatientLocation } from "@/lib/reachpoint";
 import { loadGoogleMaps } from "@/lib/google-maps-loader";
 
 interface Props {
@@ -23,7 +23,7 @@ function pinIcon(icon: string, active: boolean, selected: boolean): string {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-export function HaloMap({ center, matches, reachMiles, selectedId, planIds, onSelect }: Props) {
+export function ReachPointMap({ center, matches, reachMiles, selectedId, planIds, onSelect }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<google.maps.Map | null>(null);
   const circleRef = useRef<google.maps.Circle | null>(null);

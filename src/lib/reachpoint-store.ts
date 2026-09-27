@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import type { NeedCategory, PatientLocation, Resource, TravelMode } from "./halo";
+import type { NeedCategory, PatientLocation, Resource, TravelMode } from "./reachpoint";
 
 export interface StoredSearch {
   location: PatientLocation;
@@ -10,9 +10,9 @@ export interface StoredSearch {
   noIdOnly?: boolean;
 }
 
-const SEARCH_KEY = "halo.search";
-const PLAN_KEY = "halo.plan";
-const RESOURCES_KEY = "halo.resources";
+const SEARCH_KEY = "reachpoint.search";
+const PLAN_KEY = "reachpoint.plan";
+const RESOURCES_KEY = "reachpoint.resources";
 
 function read<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
@@ -27,7 +27,7 @@ function read<T>(key: string): T | null {
 function write(key: string, value: unknown) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(key, JSON.stringify(value));
-  window.dispatchEvent(new CustomEvent("halo:store"));
+  window.dispatchEvent(new CustomEvent("reachpoint:store"));
 }
 
 export function saveSearch(s: StoredSearch) {
@@ -50,8 +50,8 @@ export function useResources() {
     const sync = () => setResources(readResources());
     sync();
     setReady(true);
-    window.addEventListener("halo:store", sync);
-    return () => window.removeEventListener("halo:store", sync);
+    window.addEventListener("reachpoint:store", sync);
+    return () => window.removeEventListener("reachpoint:store", sync);
   }, []);
   return { resources, ready };
 }
@@ -87,8 +87,8 @@ export function usePlan() {
     const sync = () => setPlan(read<string[]>(PLAN_KEY) ?? []);
     sync();
     setReady(true);
-    window.addEventListener("halo:store", sync);
-    return () => window.removeEventListener("halo:store", sync);
+    window.addEventListener("reachpoint:store", sync);
+    return () => window.removeEventListener("reachpoint:store", sync);
   }, []);
 
   const persist = useCallback((next: string[]) => {

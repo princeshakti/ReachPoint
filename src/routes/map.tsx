@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { HaloMap } from "@/components/HaloMap";
+import { ReachPointMap } from "@/components/ReachPointMap";
 import {
   NEEDS,
   RESOURCES,
@@ -14,9 +14,9 @@ import {
   type Match,
   type NeedCategory,
   type TravelMode,
-} from "@/lib/halo";
-import { findResources } from "@/lib/halo-live.functions";
-import { saveResources, usePlan, useSearch } from "@/lib/halo-store";
+} from "@/lib/reachpoint";
+import { findResources } from "@/lib/reachpoint-live.functions";
+import { saveResources, usePlan, useSearch } from "@/lib/reachpoint-store";
 
 const TIME_OPTIONS = [15, 30, 45];
 
@@ -57,7 +57,7 @@ function MapScreen() {
   const needsKey = search ? [...search.needs].sort().join(",") : "";
   const live = useQuery({
     enabled: Boolean(search),
-    queryKey: ["halo-resources", search?.location.lat, search?.location.lng, needsKey],
+    queryKey: ["reachpoint-resources", search?.location.lat, search?.location.lng, needsKey],
     staleTime: 5 * 60 * 1000,
     queryFn: () =>
       find({
@@ -124,7 +124,7 @@ function MapScreen() {
 
       <div className="mx-auto grid max-w-7xl gap-5 px-5 py-5 lg:grid-cols-[1.15fr_1fr]">
         <div className="h-[380px] lg:sticky lg:top-[76px] lg:h-[calc(100vh-100px)]">
-          <HaloMap
+          <ReachPointMap
             center={search.location}
             matches={matches}
             reachMiles={reach}
@@ -135,7 +135,7 @@ function MapScreen() {
         </div>
 
         <div className="space-y-3">
-          <section className="halo-card space-y-4 p-4">
+          <section className="rp-card space-y-4 p-4">
             <div>
               <p className="text-sm font-semibold">Add or change what they need</p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -150,7 +150,7 @@ function MapScreen() {
                         : [...search.needs, n.id];
                       update({ needs: next.length ? next : [n.id] });
                     }}
-                    className={`halo-chip ${search.needs.includes(n.id) ? "halo-chip-on" : ""}`}
+                    className={`rp-chip ${search.needs.includes(n.id) ? "rp-chip-on" : ""}`}
                   >
                     <span aria-hidden>{n.icon}</span>
                     {n.label}
@@ -167,7 +167,7 @@ function MapScreen() {
                       key={m.id}
                       type="button"
                       onClick={() => update({ mode: m.id as TravelMode })}
-                      className={`halo-chip ${search.mode === m.id ? "halo-chip-on" : ""}`}
+                      className={`rp-chip ${search.mode === m.id ? "rp-chip-on" : ""}`}
                     >
                       <span aria-hidden>{m.icon}</span>
                       {m.label}
@@ -183,7 +183,7 @@ function MapScreen() {
                       key={t}
                       type="button"
                       onClick={() => update({ maxMinutes: t })}
-                      className={`halo-chip ${search.maxMinutes === t ? "halo-chip-on" : ""}`}
+                      className={`rp-chip ${search.maxMinutes === t ? "rp-chip-on" : ""}`}
                     >
                       {t} min
                     </button>
@@ -201,7 +201,7 @@ function MapScreen() {
           </div>
 
           {live.isError && (
-            <p className="halo-card p-4 text-sm text-destructive">
+            <p className="rp-card p-4 text-sm text-destructive">
               We couldn't load nearby resources just now. Please try again in a moment.
             </p>
           )}
@@ -219,7 +219,7 @@ function MapScreen() {
           ))}
 
           {beyond.length > 0 && (
-            <details className="halo-card p-4">
+            <details className="rp-card p-4">
               <summary className="cursor-pointer text-sm font-semibold">
                 {beyond.length} more just outside the reachable area
               </summary>
@@ -239,7 +239,7 @@ function MapScreen() {
           )}
 
           {!live.isPending && matches.length === 0 && (
-            <p className="halo-card p-6 text-sm text-muted-foreground">
+            <p className="rp-card p-6 text-sm text-muted-foreground">
               No resources found nearby for those needs. Try selecting more categories.
             </p>
           )}
@@ -272,7 +272,7 @@ function ResultCard({
     match.score >= 85 ? "bg-success text-success-foreground" : match.score >= 65 ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground";
 
   return (
-    <article className={`halo-card overflow-hidden ${expanded ? "ring-2 ring-ring/40" : ""}`}>
+    <article className={`rp-card overflow-hidden ${expanded ? "ring-2 ring-ring/40" : ""}`}>
       <button onClick={onExpand} className="w-full p-4 text-left">
         <div className="flex items-start gap-3">
           <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-lg">

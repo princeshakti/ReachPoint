@@ -484,7 +484,7 @@ export function hoursSummary(r: Resource): string {
     .join(" · ");
 }
 
-/* ---------------- halo match ---------------- */
+/* ---------------- ReachPoint match ---------------- */
 
 export interface SearchCriteria {
   location: PatientLocation;

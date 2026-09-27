@@ -12,8 +12,8 @@ import {
   distanceMiles,
   type Resource,
   type TravelMode,
-} from "@/lib/halo";
-import { usePlan, useResources, useSearch } from "@/lib/halo-store";
+} from "@/lib/reachpoint";
+import { usePlan, useResources, useSearch } from "@/lib/reachpoint-store";
 
 export const Route = createFileRoute("/plan")({
   head: () => ({
@@ -83,7 +83,7 @@ function PlanScreen() {
 
       <div className="print-page mx-auto max-w-4xl px-5 py-8">
         {resources.length === 0 ? (
-          <div className="halo-card p-8 text-center">
+          <div className="rp-card p-8 text-center">
             <p className="text-muted-foreground">
               No resources selected yet. Add a few from the map.
             </p>
@@ -97,7 +97,7 @@ function PlanScreen() {
         ) : (
           <>
             <div className="no-print mb-6 space-y-3">
-              <div className="halo-card p-4">
+              <div className="rp-card p-4">
                 <p className="text-sm font-semibold">How will the patient travel?</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {TRAVEL_MODES.map((m) => (
@@ -105,7 +105,7 @@ function PlanScreen() {
                       key={m.id}
                       type="button"
                       onClick={() => update({ mode: m.id as TravelMode })}
-                      className={`halo-chip ${search.mode === m.id ? "halo-chip-on" : ""}`}
+                      className={`rp-chip ${search.mode === m.id ? "rp-chip-on" : ""}`}
                     >
                       <span aria-hidden>{m.icon}</span>
                       {m.label}
@@ -118,7 +118,7 @@ function PlanScreen() {
               </div>
 
               {resources.map((r, i) => (
-                <div key={r.id} className="halo-card flex items-center gap-3 p-3">
+                <div key={r.id} className="rp-card flex items-center gap-3 p-3">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-secondary text-sm font-bold">
                     {i + 1}
                   </span>
@@ -184,7 +184,7 @@ function PlanScreen() {
             </div>
 
             {route && (
-              <section className="halo-card mb-6 p-5">
+              <section className="rp-card mb-6 p-5">
                 <h2 className="text-xl font-semibold">Your Resource Route</h2>
                 <ol className="mt-4 space-y-1">
                   <li className="text-sm font-semibold">🏠 Home — {search.location.address}</li>
@@ -207,7 +207,7 @@ function PlanScreen() {
               </section>
             )}
 
-            <section className="halo-card p-6 sm:p-8">
+            <section className="rp-card p-6 sm:p-8">
               <header className="border-b border-border pb-4">
                 <h1 className="text-2xl font-semibold">Your Community Resources</h1>
                 <p className="text-sm text-muted-foreground">

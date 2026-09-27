@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import type { Hours, NeedCategory, PatientLocation, Resource } from "./halo";
+import type { Hours, NeedCategory, PatientLocation, Resource } from "./reachpoint";
 
 const GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
 

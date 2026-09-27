@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { NEEDS, TRAVEL_MODES, type NeedCategory, type TravelMode } from "@/lib/halo";
-import { geocodeAddress, reverseGeocode } from "@/lib/halo-live.functions";
-import { saveResources, saveSearch } from "@/lib/halo-store";
+import { NEEDS, TRAVEL_MODES, type NeedCategory, type TravelMode } from "@/lib/reachpoint";
+import { geocodeAddress, reverseGeocode } from "@/lib/reachpoint-live.functions";
+import { saveResources, saveSearch } from "@/lib/reachpoint-store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -126,7 +126,7 @@ function SearchScreen() {
         </p>
       </header>
 
-      <form onSubmit={submit} className="halo-card space-y-8 p-6 sm:p-8">
+      <form onSubmit={submit} className="rp-card space-y-8 p-6 sm:p-8">
         <section>
           <label htmlFor="address" className="text-sm font-semibold">
             Find resources around
@@ -163,7 +163,7 @@ function SearchScreen() {
                 type="button"
                 key={n.id}
                 onClick={() => toggleNeed(n.id)}
-                className={`halo-chip ${needs.includes(n.id) ? "halo-chip-on" : ""}`}
+                className={`rp-chip ${needs.includes(n.id) ? "rp-chip-on" : ""}`}
               >
                 <span aria-hidden>{n.icon}</span>
                 {n.label}
@@ -181,7 +181,7 @@ function SearchScreen() {
                   type="button"
                   key={m.id}
                   onClick={() => setMode(m.id)}
-                  className={`halo-chip ${mode === m.id ? "halo-chip-on" : ""}`}
+                  className={`rp-chip ${mode === m.id ? "rp-chip-on" : ""}`}
                 >
                   <span aria-hidden>{m.icon}</span>
                   {m.label}
@@ -197,7 +197,7 @@ function SearchScreen() {
                   type="button"
                   key={t}
                   onClick={() => setMaxMinutes(t)}
-                  className={`halo-chip ${maxMinutes === t ? "halo-chip-on" : ""}`}
+                  className={`rp-chip ${maxMinutes === t ? "rp-chip-on" : ""}`}
                 >
                   {t} min
                 </button>
@@ -212,14 +212,14 @@ function SearchScreen() {
             <button
               type="button"
               onClick={() => setNoIdOnly((v) => !v)}
-              className={`halo-chip ${noIdOnly ? "halo-chip-on" : ""}`}
+              className={`rp-chip ${noIdOnly ? "rp-chip-on" : ""}`}
             >
               No ID available
             </button>
             <button
               type="button"
               onClick={() => setSpanish((v) => !v)}
-              className={`halo-chip ${spanish ? "halo-chip-on" : ""}`}
+              className={`rp-chip ${spanish ? "rp-chip-on" : ""}`}
             >
               Spanish preferred
             </button>
