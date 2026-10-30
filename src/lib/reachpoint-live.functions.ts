@@ -2,28 +2,48 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Hours, NeedCategory, PatientLocation, Resource } from "./reachpoint";
 
-const GATEWAY = "https://connector-gateway.lovable.dev/google_maps";
-
-function credentials() {
-  const lovableKey = process.env["LOVABLE_API_KEY"];
-  const mapsKey = process.env["GOOGLE_MAPS_API_KEY"];
-  if (!lovableKey || !mapsKey) throw new Error("Google Maps is not connected for this project.");
-  return {
-    Authorization: `Bearer ${lovableKey}`,
-    "X-Connection-Api-Key": mapsKey,
-    "Content-Type": "application/json",
-  } as Record<string, string>;
+// Calls Google's own APIs directly with a standard server-side Google Maps
+// API key — no Lovable account or connector required. Set GOOGLE_MAPS_API_KEY
+// in your server environment, with the Geocoding API and Places API (New)
+// enabled on that key in Google Cloud Console.
+function mapsKey(): string {
+  const key = process.env["GOOGLE_MAPS_API_KEY"];
+  if (!key) {
+    throw new Error(
+      "GOOGLE_MAPS_API_KEY is not set on the server. Add it to your .env (see .env.example).",
+    );
+  }
+  return key;
 }
 
-async function gateway(path: string, init: RequestInit & { headers?: Record<string, string> }) {
-  const res = await fetch(`${GATEWAY}${path}`, {
-    ...init,
-    headers: { ...credentials(), ...(init.headers ?? {}) },
+async function geocodeJson(query: string) {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?${query}&key=${mapsKey()}`;
+  const res = await fetch(url);
+  const json: any = await res.json();
+  if (json.status !== "OK") {
+    // Surface Google's own reason (e.g. REQUEST_DENIED, OVER_QUERY_LIMIT) so
+    // it shows up in server logs instead of a generic failure.
+    console.error(`Geocoding failed [${json.status}]: ${json.error_message ?? "no details"}`);
+    throw new Error(json.error_message || `Geocoding failed: ${json.status}`);
+  }
+  return json;
+}
+
+async function placesSearchText(body: Record<string, unknown>) {
+  const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": mapsKey(),
+      "X-Goog-FieldMask":
+        "places.id,places.displayName,places.formattedAddress,places.location,places.nationalPhoneNumber,places.regularOpeningHours,places.primaryTypeDisplayName,places.websiteUri,places.businessStatus",
+    },
+    body: JSON.stringify(body),
   });
   if (!res.ok) {
-    const body = await res.text();
-    console.error(`Google Maps request failed [${res.status}]: ${body}`);
-    throw new Error(`Google Maps request failed [${res.status}]: ${body}`);
+    const errBody = await res.text();
+    console.error(`Places search failed [${res.status}]: ${errBody}`);
+    throw new Error(`Places search failed [${res.status}]`);
   }
   return res.json() as Promise<any>;
 }
@@ -33,10 +53,7 @@ async function gateway(path: string, init: RequestInit & { headers?: Record<stri
 export const geocodeAddress = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ address: z.string().min(3).max(200) }).parse(d))
   .handler(async ({ data }): Promise<PatientLocation> => {
-    const json = await gateway(
-      `/maps/api/geocode/json?address=${encodeURIComponent(data.address)}`,
-      { method: "GET" },
-    );
+    const json = await geocodeJson(`address=${encodeURIComponent(data.address)}`);
     const first = json?.results?.[0];
     if (!first) throw new Error("We couldn't find that address. Try adding the city or ZIP code.");
     return {
@@ -51,10 +68,7 @@ export const reverseGeocode = createServerFn({ method: "POST" })
     z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).parse(d),
   )
   .handler(async ({ data }): Promise<PatientLocation> => {
-    const json = await gateway(
-      `/maps/api/geocode/json?latlng=${data.lat},${data.lng}`,
-      { method: "GET" },
-    );
+    const json = await geocodeJson(`latlng=${data.lat},${data.lng}`);
     const first = json?.results?.[0];
     return {
       address: (first?.formatted_address as string) ?? `${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}`,
@@ -110,19 +124,12 @@ async function searchCategory(
 ): Promise<Resource[]> {
   const out: Resource[] = [];
   for (const textQuery of QUERIES[category]) {
-    const json = await gateway("/places/v1/places:searchText", {
-      method: "POST",
-      headers: {
-        "X-Goog-FieldMask":
-          "places.id,places.displayName,places.formattedAddress,places.location,places.nationalPhoneNumber,places.regularOpeningHours,places.primaryTypeDisplayName,places.websiteUri,places.businessStatus",
+    const json = await placesSearchText({
+      textQuery,
+      pageSize: 8,
+      locationBias: {
+        circle: { center: { latitude: lat, longitude: lng }, radius: radiusMeters },
       },
-      body: JSON.stringify({
-        textQuery,
-        pageSize: 8,
-        locationBias: {
-          circle: { center: { latitude: lat, longitude: lng }, radius: radiusMeters },
-        },
-      }),
     });
     for (const p of (json?.places ?? []) as any[]) {
       if (p.businessStatus && p.businessStatus !== "OPERATIONAL") continue;
