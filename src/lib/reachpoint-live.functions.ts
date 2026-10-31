@@ -51,7 +51,7 @@ async function placesSearchText(body: Record<string, unknown>) {
 /* ---------------- geocoding ---------------- */
 
 export const geocodeAddress = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ address: z.string().min(3).max(200) }).parse(d))
+  .validator((d) => z.object({ address: z.string().min(3).max(200) }).parse(d))
   .handler(async ({ data }): Promise<PatientLocation> => {
     const json = await geocodeJson(`address=${encodeURIComponent(data.address)}`);
     const first = json?.results?.[0];
@@ -64,7 +64,7 @@ export const geocodeAddress = createServerFn({ method: "POST" })
   });
 
 export const reverseGeocode = createServerFn({ method: "POST" })
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).parse(d),
   )
   .handler(async ({ data }): Promise<PatientLocation> => {
@@ -163,7 +163,7 @@ async function searchCategory(
 }
 
 export const findResources = createServerFn({ method: "POST" })
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         lat: z.number().min(-90).max(90),
