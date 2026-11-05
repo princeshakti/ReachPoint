@@ -1,326 +1,138 @@
 # ReachPoint
 
-build me a web app that lets users (in this case healthcare professionals like doctors, nurses, etc) input an address and it gives them a map of surrounding home shelters, food drives/pantry, ebt assistance, and things similar to this for people who need assistance. these people are patients that come in and need help so the doctor can give them a list of places near the address (for now maybe with a 2-3 mile radius). when the result come in the doctor/user should be able to click on them and get more info about the place and then easily place multiple locations in a list to print or give the the patient. add these features to the app: Where I think ReachPoint can actually be different
-
-Imagine a patient tells the nurse:
-
-“I don't have enough food at home, and I don't have a car.”
-
-Today's systems are very good at answering:
-
-Food resources near ZIP 90650
-
-But the useful answer isn't necessarily:
-
-Food pantry — 2.1 miles away
-
-Because 2.1 miles could mean:
-
-5-minute drive
-
-but
-
-47-minute walk
-
-And maybe the pantry closes in 25 minutes.
-
-That's where I'd take ReachPoint.
-
-ReachPoint should be proximity + feasibility
-
-The search could begin:
-
-Where does the patient live?
-
-123 Main St, Norwalk, CA
-
-What do they need?
-
-Food
-
-How can they travel?
-
-○ Car ● Walking ○ Public transit
-
-How far can they reasonably travel?
-
-● 15 min ○ 30 min ○ 45 min
-
-Instead of simply drawing a three-mile circle, ReachPoint now draws a real accessibility halo.
-
-That's much more interesting.
-
-A three-mile circle assumes everyone has equal transportation.
-
-They don't.
-
-For a patient without a car, this:
-
-3 miles
-
-is actually less useful than:
-
-≤ 20 minutes by bus
-
-or
-
-≤ 15 minutes walking
-
-I did not find this type of transportation-mode-based community-resource ranking prominently documented in Findhelp, Unite Us, or One Degree.
-
-That's the first gap I'd pursue.
-
-Then create a ReachPoint Match
-
-Instead of displaying 47 food resources in a giant list:
-
-Community Food Center
-
-ReachPoint Match: 96%
-
-8 min away by bus
-
-✓ Open today until 6 PM
-
-✓ Walk-ins accepted
-
-✓ Patient appears eligible
-
-✓ Spanish available
-
-✓ Currently accepting clients
-
-✓ Free
-
-✓ No ID required
-
-What to bring:
-
-Proof of address
-
-Add to Patient Plan
-
-Now you're combining information these other platforms often expose separately into a single question:
-
-How realistic is this resource for this patient?
-
-Findhelp already has sophisticated eligibility filters and availability functionality, so I wouldn't pretend those are new ideas. It allows programs to indicate capacity/waitlist status, for example.
-
-The differentiation would be how ReachPoint synthesizes the information.
-
-Another feature I think could be genuinely useful: ReachPoint Route
-
-Suppose a patient needs:
-
-Food
-
-CalFresh enrollment help
-
-Housing assistance
-
-The nurse selects all three.
-
-Instead of handing them:
-
-Location A — 1.4 miles
-
-Location B — 2.7 miles
-
-Location C — 2.1 miles
-
-ReachPoint could say:
-
-Your Resource Route
-
-Home
-
-↓ 8-minute bus
-
-1. Community Food Pantry
-
-9:00 AM–2:00 PM
-
-↓ 4-minute walk
-
-2. Benefits Enrollment Center
-
-CalFresh application assistance
-
-↓ 12-minute bus
-
-3. Housing Resource Center
-
-Then:
-
-Total trip: approximately 1 hr 25 min
-
-Open Route
-
-Print Resource Plan
-
-Text to Patient
-
-I specifically searched the competitors for multi-resource routing/itinerary functionality and didn't find it documented as a core capability.
-
-That is much more interesting than simply putting pins on a map.
-
-Your patient handout could also be better than a normal directory printout
-
-I wouldn't print ten pages of database information.
-
-I'd design ReachPoint around something a patient can actually take home:
-
-Your Community Resources
-
-Prepared for you by your care team
-
-🍎 Food
-
-Community Food Center
-
-0.7 mi • 11-minute walk
-
-Today: Open until 5 PM
-
-You can walk in — appointment not required
-
-Bring:
-
- Photo ID
-
- Proof of address
-
-☎ Call: xxx-xxx-xxxx
-
-📍 Directions QR code
-
-💳 CalFresh
-
-Benefits Enrollment Center
-
-1.2 mi • Bus 460 — approximately 17 min
-
-Today: Open until 6 PM
-
-They can help you complete your application.
-
-Bring:
-
- ID
-
- Income information if available
-
-☎ xxx-xxx-xxxx
-
-Last verified: Sep. 10, 2026
-
-That feels much closer to something a nurse could hand someone and say:
-
-“Start with these two.” The version of ReachPoint I would build
-
-My MVP would essentially have three screens.
-
-1 — Patient location
-
-Find resources around:
-
-___
-
-Then:
-
-Needs
-
-Food Housing Benefits Transportation Utilities Other
-
-Travel
-
-Walking Transit Driving
-
-Maximum travel time
-
-15 min 30 min 45 min
-
-[ Find Resources ]
-
-2 — ReachPoint Map
-
-Big map.
-
-Patient in center.
-
-Instead of necessarily drawing a perfect circle, the shaded ReachPoint represents the area realistically reachable based on transportation.
-
-Pins show:
-
-🍎 Food
-
-🏠 Housing
-
-💳 Benefits
-
-🚌 Transportation
-
-Side panel:
-
-9 matches
-
-Community Food Center
-
-⭐ 96% ReachPoint Match
-
-8 min by bus
-
-🟢 Open
-
-✓ Walk-ins
-
-✓ No ID required
-
-+ Add
-
-3 — Patient Plan
-
-Selected Resources — 4
-
-Reorder them.
-
-Remove ones you don't want.
-
-Then:
-
-[ Print ] [ Text ] [ Email ]
-
-Potentially:
-
-[ Create ReachPoint Route ]
-
-Done.
-
-No complicated case.
-
-No required SDOH assessment.
-
-No patient record unless the clinic actually wants one. call the app ReachPoint
-
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://reachpoint.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/37a1d208-3ac3-4a9a-83f0-f73e9388d17b).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
+ReachPoint helps care teams find food, shelter, benefits, utility help and other community resources that a
+patient can **actually reach**. Results are ranked by travel time for the way the patient gets around (on foot,
+by bus or by car), not by straight-line distance alone.
+
+A care worker enters where the patient is, picks what they need, and gets a live Google Map and a ranked list.
+They can build a patient plan, print a plain-language handout, send it by text or email, and order the stops
+into a suggested route.
+
+## Features
+
+- **Reach-first search.** Pick walking, public transit or driving and a travel limit (15, 30 or 45 minutes). The
+  map shades the area the patient can reach, and results outside it are tucked away.
+- **Live location.** Use the device's location, or type an address.
+- **Real Google Map.** Pins for every result, the patient's position and the reachable area.
+- **Refine without starting over.** Add or remove needs, or change the travel mode, from the results screen.
+- **Open-now status.** Hours come from Google, including places that close after midnight or never close.
+- **Patient plan.** Reorder stops, switch the travel mode and see times update.
+- **Handout.** Print a patient-friendly page, or send the plan by text or email.
+- **Route builder.** Suggests a visiting order starting from the patient's address.
+- **Care-team flags.** "No ID" and "prefers Spanish" add reminders to ask when calling.
+- **Private by design.** Nothing is stored on a server. Search details and the plan live in the browser's
+  session storage and disappear when the tab is closed.
+
+## How reach is calculated
+
+Travel times are **estimates**, not turn-by-turn routing. For each place, ReachPoint takes the straight-line
+distance, adds a detour allowance, and divides by a typical speed for the travel mode:
+
+| Mode           | Speed  | Fixed overhead |
+| -------------- | ------ | -------------- |
+| Walking        | 3 mph  | none           |
+| Public transit | 11 mph | 9 min          |
+| Driving        | 24 mph | 4 min          |
+
+The match score blends how much of the travel limit is left (65%) with whether the place is open now (35%).
+Always call a place to confirm hours and eligibility before sending a patient there.
+
+## Tech stack
+
+- [TanStack Start](https://tanstack.com/start) (React 19, file-based routing, server functions) on Vite and Nitro
+- TypeScript in strict mode
+- Tailwind CSS v4 with a small design-token theme in `src/styles.css`
+- TanStack Query for data fetching
+- Google Maps Platform: Maps JavaScript API, Geocoding API, Places API (New)
+- Atkinson Hyperlegible Next, a typeface designed for low-vision readers, self-hosted
+
+## Getting started
+
+### 1. Google Cloud setup
+
+1. Create a project in the [Google Cloud console](https://console.cloud.google.com/) and **enable billing**.
+2. Enable these three APIs: **Maps JavaScript API**, **Geocoding API** and **Places API (New)**.
+3. Create an API key under _APIs & Services → Credentials_.
+
+### 2. Run it
+
+Requires Node.js 22.12 or newer.
+
+```bash
+npm install
+cp .env.example .env     # then paste your key into .env
 npm run dev
 ```
+
+Open <http://localhost:5173>. Use `localhost` or an `https` address: browsers only allow the location button on
+secure origins, so a LAN address such as `http://192.168.1.14:5173` will not work.
+
+### Environment variables
+
+| Variable                  | Required | Purpose                                                                            |
+| ------------------------- | -------- | ---------------------------------------------------------------------------------- |
+| `GOOGLE_MAPS_API_KEY`     | Yes      | Used by the server for geocoding and place search, and by the browser for the map. |
+| `GOOGLE_MAPS_BROWSER_KEY` | No       | A separate key for the browser map. Falls back to `GOOGLE_MAPS_API_KEY`.           |
+
+`.env` is git-ignored. Never commit a key.
+
+**Restricting the key.** A single key cannot be limited to your website's address, because the server's calls to
+Google have no referrer. For production, create two keys: restrict the server key by API (and by IP if your host
+allows), and put a second key restricted by HTTP referrer in `GOOGLE_MAPS_BROWSER_KEY`. Also set a daily quota
+in Google Cloud so a leaked key cannot run up a bill.
+
+## Scripts
+
+| Command             | What it does                            |
+| ------------------- | --------------------------------------- |
+| `npm run dev`       | Start the dev server with hot reload    |
+| `npm run build`     | Create a production build in `.output/` |
+| `npm run start`     | Run the production build (reads `.env`) |
+| `npm run typecheck` | Type-check without emitting files       |
+| `npm run lint`      | Lint and check formatting               |
+| `npm run format`    | Format the code with Prettier           |
+
+## Project structure
+
+```
+src/
+  routes/          Pages: / (search), /map (results), /plan (handout)
+  components/
+    search/        Front page: address field, reach preview, search form
+    results/       Map, result cards, refine panel
+    plan/          Plan editor, route builder, handout
+  server/          Google calls. Keys never reach the browser bundle
+  hooks/           Search and plan state, current time, hydration
+  lib/             Travel model, scoring, hours, itinerary, sharing
+```
+
+Google API keys are read only in `src/server/google.server.ts`. The browser asks the server for the map key at
+runtime through a server function.
+
+## Deployment
+
+`npm run build` produces a Node server in `.output/` (Nitro's `node-server` preset). Run it with
+`npm run start` or `node .output/server/index.mjs` and set `GOOGLE_MAPS_API_KEY` in the host's environment.
+For other hosts (Vercel, Netlify, Cloudflare and so on) set `NITRO_PRESET` before building; see the
+[Nitro deployment docs](https://nitro.build/deploy).
+
+## Privacy
+
+- No database and no accounts. Patient details are never sent anywhere except Google, to look up addresses and
+  places.
+- Search criteria and the plan are kept in `sessionStorage` for the current tab only.
+- Do not enter more patient information than the address and needs the tool asks for.
+
+## Limitations
+
+- Travel times are estimates. Check real routes with the **Directions** link before relying on them.
+- Listings come from Google Maps and are not verified. Hours and eligibility may be out of date.
+- Search covers what Google Maps knows about. Small or informal programs may be missing.
+- Google Maps Platform usage is billed by Google.
+
+## Roadmap
+
+- Real travel times using the Routes API
+- Spanish and other languages for the handout
+- Saving a plan as a PDF
+- Tests for the travel model and hours parsing

@@ -1,139 +1,94 @@
-@import "tailwindcss" source(none);
-@source "../src";
-@import "tw-animate-css";
+@import "tailwindcss";
+@import "@fontsource-variable/atkinson-hyperlegible-next";
 
-@custom-variant dark (&:is(.dark *));
+/*
+ * Design tokens.
+ * Atkinson Hyperlegible was designed for low-vision readers. It suits a tool
+ * that clinicians scan quickly and that patients read on a printed page.
+ * The palette is a deep reach-teal on a cool mist background, with a navy dot
+ * for "the patient is here" and amber used only for things that need attention.
+ */
+@theme {
+  --font-sans: "Atkinson Hyperlegible Next Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-map: var(--map);
-  --color-surface: var(--surface);
-}
+  --color-page: #f2f6f5;
+  --color-surface: #ffffff;
+  --color-ink: #12292b;
+  --color-ink-soft: #46605f;
+  --color-line: #d3dfdd;
+  --color-line-strong: #aebfbc;
 
-:root {
-  --radius: 0.875rem;
-  --background: oklch(0.985 0.008 95);
-  --foreground: oklch(0.22 0.03 210);
-  --surface: oklch(0.965 0.012 95);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.03 210);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.03 210);
-  --primary: oklch(0.47 0.09 195);
-  --primary-foreground: oklch(0.99 0.01 190);
-  --secondary: oklch(0.94 0.02 195);
-  --secondary-foreground: oklch(0.32 0.06 200);
-  --muted: oklch(0.95 0.01 100);
-  --muted-foreground: oklch(0.52 0.02 210);
-  --accent: oklch(0.8 0.13 72);
-  --accent-foreground: oklch(0.26 0.05 60);
-  --destructive: oklch(0.58 0.19 25);
-  --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.62 0.13 155);
-  --success-foreground: oklch(0.99 0 0);
-  --warning: oklch(0.75 0.15 70);
-  --warning-foreground: oklch(0.26 0.05 60);
-  --border: oklch(0.9 0.012 200);
-  --input: oklch(0.9 0.012 200);
-  --ring: oklch(0.47 0.09 195);
+  --color-reach: #0e6b66;
+  --color-reach-deep: #0a524e;
+  --color-reach-tint: #def1ee;
+  --color-reach-wash: #eef7f6;
 
-  --map: oklch(0.955 0.014 150);
-  --map-line: oklch(0.9 0.018 150);
-  --map-road: oklch(0.88 0.02 90);
-  --reach-core: oklch(0.62 0.11 195);
-  --reach-edge: oklch(0.47 0.09 195);
-  --home: oklch(0.42 0.1 250);
-  --home-pulse: oklch(0.42 0.1 250);
-  --pin: oklch(1 0 0);
-  --pin-active: oklch(0.86 0.12 72);
-  --pin-ring: oklch(0.47 0.09 195);
+  --color-home: #27408b;
+  --color-amber: #f0b429;
+  --color-amber-ink: #7a4f00;
+  --color-amber-tint: #fdf1d3;
+  --color-ok: #17703e;
+  --color-ok-tint: #e1f3e8;
+  --color-danger: #b3261e;
+  --color-danger-tint: #fbe9e7;
+
+  --radius-tile: 0.625rem;
+  --radius-panel: 1.125rem;
 }
 
 @layer base {
-  * {
-    border-color: var(--color-border);
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--color-page);
+    color: var(--color-ink);
     font-family: var(--font-sans);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
   h2,
   h3 {
-    font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
   }
-}
 
-@utility rp-card {
-  background-color: var(--card);
-  border-radius: var(--radius-xl);
-  box-shadow: 0 1px 2px oklch(0.3 0.03 200 / 0.06), 0 8px 24px oklch(0.3 0.03 200 / 0.05);
-  border: 1px solid var(--border);
-}
+  :focus-visible {
+    outline: 3px solid var(--color-reach);
+    outline-offset: 2px;
+  }
 
-@utility rp-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  padding: 0.375rem 0.75rem;
-  font-size: 0.8125rem;
-  line-height: 1.1rem;
-  background-color: var(--card);
-  transition: all 0.15s ease;
-  cursor: pointer;
-}
-
-@utility rp-chip-on {
-  border-color: var(--primary);
-  background-color: var(--secondary);
-  color: var(--secondary-foreground);
-  font-weight: 600;
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @media print {
+  body {
+    background: #ffffff;
+  }
+
   .no-print {
     display: none !important;
   }
-  body {
-    background: white;
-  }
-  .print-page {
+
+  .handout {
+    border: none !important;
+    box-shadow: none !important;
     padding: 0 !important;
+  }
+
+  .handout-item {
+    break-inside: avoid;
   }
 }

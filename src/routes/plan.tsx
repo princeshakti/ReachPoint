@@ -1,271 +1,89 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import {
-  RESOURCES,
-  TRAVEL_MODES,
-  buildRoute,
-  categoryMeta,
-  formatMinutes,
-  openStatus,
-  travelLabel,
-  travelMinutes,
-  distanceMiles,
-  type Resource,
-  type TravelMode,
-} from "@/lib/reachpoint";
-import { usePlan, useResources, useSearch } from "@/lib/reachpoint-store";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { AppHeader, headerButton } from "@/components/AppHeader";
+import { PageLoading } from "@/components/RouteStates";
+import { Handout } from "@/components/plan/Handout";
+import { PlanEditor } from "@/components/plan/PlanEditor";
+import { PlanToolbar } from "@/components/plan/PlanToolbar";
+import { RoutePanel } from "@/components/plan/RoutePanel";
+import { ModePicker } from "@/components/TravelControls";
+import { useHydrated } from "@/hooks/useHydrated";
+import { usePlan } from "@/hooks/usePlan";
+import { useSearch } from "@/hooks/useSearch";
 
 export const Route = createFileRoute("/plan")({
-  head: () => ({
-    meta: [
-      { title: "Patient Plan — ReachPoint" },
-      {
-        name: "description",
-        content:
-          "Build, reorder and print a patient-friendly community resource handout with hours, what to bring, and a suggested route.",
-      },
-      { property: "og:title", content: "Patient Plan — ReachPoint" },
-      {
-        property: "og:description",
-        content: "A one-page handout a patient can actually take home and use.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: PlanScreen,
+  component: PlanPage,
 });
 
-function PlanScreen() {
-  const { plan, remove, move, clear, ready } = usePlan();
-  const { search, ready: searchReady, update } = useSearch();
-  const { resources: liveResources } = useResources();
-  const navigate = useNavigate();
-  const [now, setNow] = useState<Date | null>(null);
+function PlanPage() {
+  const hydrated = useHydrated();
+  const { search, updateSearch } = useSearch();
+  const { plan, move, remove, clear } = usePlan();
   const [showRoute, setShowRoute] = useState(false);
 
-  useEffect(() => setNow(new Date()), []);
-  useEffect(() => {
-    if (searchReady && !search) navigate({ to: "/" });
-  }, [searchReady, search, navigate]);
-
-  const resources = useMemo(() => {
-    const pool = [...liveResources, ...RESOURCES];
-    return plan.map((id) => pool.find((r) => r.id === id)).filter(Boolean) as Resource[];
-  }, [plan, liveResources]);
-
-  if (!search || !now || !ready) {
-    return <main className="grid min-h-screen place-items-center text-muted-foreground">Loading…</main>;
-  }
-
-  const route = showRoute ? buildRoute(search.location, resources, search.mode) : null;
-  const today = now.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  if (!hydrated) return <PageLoading />;
+  if (!search) return <Navigate to="/" />;
 
   return (
-    <main className="min-h-screen">
-      <header className="no-print sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-4xl flex-wrap items-center gap-3 px-5 py-3">
-          <Link to="/" className="font-display text-lg font-semibold text-primary">
-            ◎ ReachPoint
-          </Link>
-          <div className="flex-1 text-sm text-muted-foreground">
-            Selected resources — {resources.length}
-          </div>
-          <Link to="/map" className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted">
-            Back to map
-          </Link>
-        </div>
-      </header>
+    <>
+      <AppHeader>
+        <Link to="/map" className={`${headerButton} no-print ml-auto`}>
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Back to results
+        </Link>
+      </AppHeader>
 
-      <div className="print-page mx-auto max-w-4xl px-5 py-8">
-        {resources.length === 0 ? (
-          <div className="rp-card p-8 text-center">
-            <p className="text-muted-foreground">
-              No resources selected yet. Add a few from the map.
+      <main className="mx-auto max-w-3xl space-y-6 px-5 py-8">
+        <div className="no-print">
+          <h1 className="text-2xl font-bold">Patient plan</h1>
+          <p className="mt-1 text-sm text-ink-soft">
+            Near {search.location.address}. Change how the patient travels and the times below update.
+          </p>
+        </div>
+
+        {plan.length === 0 ? (
+          <div className="no-print rounded-panel border border-dashed border-line-strong bg-surface p-8 text-center">
+            <p className="font-bold">No places in the plan yet</p>
+            <p className="mt-1 text-sm text-ink-soft">
+              Add places from the results, then come back to print or send them.
             </p>
-            <Link
-              to="/map"
-              className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-            >
-              Go to map
+            <Link to="/map" className={`${headerButton} mt-4`}>
+              Go to results
             </Link>
           </div>
         ) : (
           <>
-            <div className="no-print mb-6 space-y-3">
-              <div className="rp-card p-4">
-                <p className="text-sm font-semibold">How will the patient travel?</p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {TRAVEL_MODES.map((m) => (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() => update({ mode: m.id as TravelMode })}
-                      className={`rp-chip ${search.mode === m.id ? "rp-chip-on" : ""}`}
-                    >
-                      <span aria-hidden>{m.icon}</span>
-                      {m.label}
-                    </button>
-                  ))}
-                </div>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Travel times on the handout and the route update right away.
-                </p>
-              </div>
-
-              {resources.map((r, i) => (
-                <div key={r.id} className="rp-card flex items-center gap-3 p-3">
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-secondary text-sm font-bold">
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold">{r.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{r.subtitle}</p>
-                  </div>
-                  <button
-                    onClick={() => move(r.id, -1)}
-                    className="rounded-md border border-border px-2 py-1 text-xs"
-                    aria-label="Move up"
-                  >
-                    ↑
-                  </button>
-                  <button
-                    onClick={() => move(r.id, 1)}
-                    className="rounded-md border border-border px-2 py-1 text-xs"
-                    aria-label="Move down"
-                  >
-                    ↓
-                  </button>
-                  <button
-                    onClick={() => remove(r.id)}
-                    className="rounded-md border border-border px-2 py-1 text-xs text-destructive"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => window.print()}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-                >
-                  Print handout
-                </button>
-                <button
-                  onClick={() => setShowRoute((v) => !v)}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
-                >
-                  {showRoute ? "Hide ReachPoint Route" : "Create ReachPoint Route"}
-                </button>
-                <a
-                  href={`sms:?&body=${encodeURIComponent(smsBody(resources, search.location.address))}`}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
-                >
-                  Text to patient
-                </a>
-                <a
-                  href={`mailto:?subject=${encodeURIComponent("Your community resources")}&body=${encodeURIComponent(smsBody(resources, search.location.address))}`}
-                  className="rounded-lg border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
-                >
-                  Email
-                </a>
-                <button
-                  onClick={clear}
-                  className="rounded-lg border border-border px-4 py-2 text-sm text-destructive hover:bg-muted"
-                >
-                  Clear
-                </button>
-              </div>
+            <div className="no-print rounded-panel border border-line bg-surface p-5">
+              <ModePicker
+                legend="How does the patient travel?"
+                name="plan-travel-mode"
+                value={search.mode}
+                onChange={(mode) => updateSearch({ mode })}
+              />
             </div>
 
-            {route && (
-              <section className="rp-card mb-6 p-5">
-                <h2 className="text-xl font-semibold">Your Resource Route</h2>
-                <ol className="mt-4 space-y-1">
-                  <li className="text-sm font-semibold">🏠 Home — {search.location.address}</li>
-                  {route.legs.map((leg, i) => (
-                    <li key={leg.resource.id}>
-                      <p className="py-1 pl-3 text-xs text-muted-foreground">↓ {leg.travel}</p>
-                      <p className="text-sm font-semibold">
-                        {i + 1}. {categoryMeta(leg.resource.category).icon} {leg.resource.name}
-                      </p>
-                      <p className="pl-5 text-xs text-muted-foreground">
-                        {leg.resource.subtitle} · {openStatus(leg.resource, now).label}
-                      </p>
-                    </li>
-                  ))}
-                </ol>
-                <p className="mt-4 text-sm font-medium">
-                  Total trip: approximately {formatMinutes(route.totalMinutes)} (includes ~25 min at
-                  each stop)
-                </p>
-              </section>
-            )}
+            <PlanToolbar
+              plan={plan}
+              patientAddress={search.location.address}
+              showRoute={showRoute}
+              onToggleRoute={() => setShowRoute((value) => !value)}
+              onClear={clear}
+            />
 
-            <section className="rp-card p-6 sm:p-8">
-              <header className="border-b border-border pb-4">
-                <h1 className="text-2xl font-semibold">Your Community Resources</h1>
-                <p className="text-sm text-muted-foreground">
-                  Prepared for you by your care team · {today}
-                </p>
-              </header>
+            {showRoute && <RoutePanel origin={search.location} plan={plan} mode={search.mode} />}
 
-              <div className="divide-y divide-border">
-                {resources.map((r) => {
-                  const miles = distanceMiles(search.location, r);
-                  const minutes = travelMinutes(miles, search.mode);
-                  const status = openStatus(r, now);
-                  return (
-                    <article key={r.id} className="py-5">
-                      <p className="text-sm font-semibold text-primary">
-                        {categoryMeta(r.category).icon} {categoryMeta(r.category).label}
-                      </p>
-                      <h3 className="text-lg font-semibold">{r.name}</h3>
-                      <p className="text-sm">
-                        {miles.toFixed(1)} mi • {travelLabel(minutes, search.mode, r)}
-                      </p>
-                      <p className="text-sm">Today: {status.label}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {r.walkIns
-                          ? "You can walk in — appointment not required."
-                          : "Call ahead — an appointment is required."}
-                      </p>
-                      <p className="mt-2 text-sm font-semibold">Bring:</p>
-                      <ul className="text-sm text-muted-foreground">
-                        {r.bring.map((b) => (
-                          <li key={b}>☐ {b}</li>
-                        ))}
-                      </ul>
-                      <p className="mt-2 text-sm">☎ {r.phone}</p>
-                      <p className="text-sm">📍 {r.address}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Last verified: {r.lastVerified}
-                      </p>
-                    </article>
-                  );
-                })}
-              </div>
+            <div className="no-print">
+              <PlanEditor plan={plan} origin={search.location} mode={search.mode} onMove={move} onRemove={remove} />
+            </div>
 
-              <p className="pt-4 text-xs text-muted-foreground">
-                Hours can change. Please call before you go.
-              </p>
-            </section>
+            <div>
+              <h2 className="no-print mb-3 text-lg font-bold">Handout preview</h2>
+              <Handout plan={plan} origin={search.location} mode={search.mode} />
+            </div>
           </>
         )}
-      </div>
-    </main>
+      </main>
+    </>
   );
-}
-
-function smsBody(resources: Resource[], address: string) {
-  return [
-    "Your community resources (from your care team):",
-    ...resources.map((r, i) => `${i + 1}. ${r.name} — ${r.address} — ${r.phone}`),
-    `Near: ${address}`,
-  ].join("\n");
 }
